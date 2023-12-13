@@ -30,6 +30,11 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
+    @Column(name = "old_balance")
+    private BigDecimal oldBalance;
+    @Column(name = "new_balance")
+    private BigDecimal newBalance;
+
     @PrePersist
     public void prePersist() {
         if (this.transactionDate == null)

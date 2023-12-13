@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ import java.util.Map;
 @RequestMapping("/transaction")
 public class TransactionController {
 
-    private TransactionRepository repository;
-    private UserRepository userRepository;
+    private final TransactionRepository repository;
+    private final UserRepository userRepository;
 
     @Autowired
     public TransactionController(
@@ -48,11 +49,15 @@ public class TransactionController {
         if (userReceiver == null)
             return ResponseEntity.status(404).body(new MessageResponseDTO("CPF do destinatário não encontrado."));
 
-        if (userSender.getBalance().compareTo(data.value()) < 0)
+        final BigDecimal senderOldBalance = userSender.getBalance();
+        final BigDecimal receiverOldBalance = userReceiver.getBalance();
+        if (senderOldBalance.compareTo(data.value()) < 0)
             return ResponseEntity.status(400).body(new MessageResponseDTO("Saldo insuficiente."));
 
-        userSender.setBalance(userSender.getBalance().subtract(data.value()));
-        userReceiver.setBalance(userReceiver.getBalance().add(data.value()));
+        final BigDecimal senderNewBalance = senderOldBalance.subtract(data.value());
+        final BigDecimal receiverNewBalance = receiverOldBalance.add(data.value());
+        userSender.setBalance(senderNewBalance);
+        userReceiver.setBalance(receiverNewBalance);
 
         userRepository.save(userSender);
         userRepository.save(userReceiver);
@@ -62,7 +67,9 @@ public class TransactionController {
                 userSender.getId(),
                 data.value(),
                 Instant.now(),
-                TransactionType.WITHDRAW
+                TransactionType.WITHDRAW,
+                senderOldBalance,
+                senderNewBalance
         );
 
         final Transaction receiverTransaction = new Transaction(
@@ -70,7 +77,9 @@ public class TransactionController {
                 userReceiver.getId(),
                 data.value(),
                 Instant.now(),
-                TransactionType.DEPOSIT
+                TransactionType.DEPOSIT,
+                receiverOldBalance,
+                receiverNewBalance
         );
 
         final TransactionResponseDTO senderResponse =

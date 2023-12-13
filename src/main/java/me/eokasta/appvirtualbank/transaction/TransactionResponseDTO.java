@@ -9,7 +9,9 @@ public record TransactionResponseDTO(
         String cpf,
         BigDecimal amount,
         Instant transactionDate,
-        TransactionType transactionType
+        TransactionType transactionType,
+        BigDecimal oldBalance,
+        BigDecimal newBalance
 ) {
 
     public static TransactionResponseDTO fromTransaction(Transaction transaction, String cpf) {
@@ -19,7 +21,9 @@ public record TransactionResponseDTO(
                 cpf,
                 transaction.getAmount(),
                 transaction.getTransactionDate(),
-                transaction.getTransactionType()
+                transaction.getTransactionType(),
+                transaction.getOldBalance(),
+                transaction.getNewBalance()
         );
     }
 
