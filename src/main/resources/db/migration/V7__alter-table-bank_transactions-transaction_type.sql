@@ -1,0 +1,1 @@
+alter table bank_transactions change column transaction_type transaction_type varchar(32) not null;

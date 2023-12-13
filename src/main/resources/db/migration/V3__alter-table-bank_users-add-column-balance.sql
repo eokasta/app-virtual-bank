@@ -1,0 +1,1 @@
+alter table bank_users add column balance float(18,2) default 0.00;
