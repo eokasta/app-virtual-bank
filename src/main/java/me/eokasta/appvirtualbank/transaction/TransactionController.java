@@ -1,9 +1,9 @@
 package me.eokasta.appvirtualbank.transaction;
 
 import jakarta.validation.Valid;
-import me.eokasta.appvirtualbank.user.MessageResponseDTO;
 import me.eokasta.appvirtualbank.user.User;
 import me.eokasta.appvirtualbank.user.UserRepository;
+import me.eokasta.appvirtualbank.utils.MessageResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
