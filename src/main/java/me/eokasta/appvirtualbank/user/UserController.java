@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import me.eokasta.appvirtualbank.utils.MessageResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user")
@@ -34,6 +31,24 @@ public class UserController {
                 user.getFullName(),
                 user.getEmail(),
                 user.getRole());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get/{cpf}")
+    public ResponseEntity getUser(@PathVariable String cpf) {
+        final User user = this.repository.findByCpf(cpf);
+        if (user == null)
+            return ResponseEntity.status(404).body(new MessageResponseDTO("Usuário não encontrado."));
+
+        final GetUserResponseDTO response = new GetUserResponseDTO(
+                user.getId(),
+                user.getCpf(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getBalance()
+        );
         return ResponseEntity.ok(response);
     }
 

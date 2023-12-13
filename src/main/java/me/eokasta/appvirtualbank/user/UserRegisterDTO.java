@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 public record UserRegisterDTO(
         @NotBlank(message = "O CPF não pode ser vazio.")
@@ -23,7 +24,7 @@ public record UserRegisterDTO(
 
     public User toUser() {
         final String encryptedPassword = new BCryptPasswordEncoder().encode(password);
-        return new User(null, cpf, encryptedPassword, fullName, email, BigDecimal.ZERO, role);
+        return new User(null, cpf, encryptedPassword, fullName, email, BigDecimal.ZERO, role, Instant.now());
     }
 
 }

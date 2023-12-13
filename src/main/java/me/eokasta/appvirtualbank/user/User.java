@@ -10,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,9 @@ public class User implements UserDetails {
     private BigDecimal balance;
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
