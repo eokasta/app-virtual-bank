@@ -1,4 +1,4 @@
-package me.eokasta.appvirtualbank.transaction;
+package me.eokasta.appvirtualbank.transaction.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

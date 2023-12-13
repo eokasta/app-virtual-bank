@@ -1,4 +1,7 @@
-package me.eokasta.appvirtualbank.transaction;
+package me.eokasta.appvirtualbank.transaction.dto;
+
+import me.eokasta.appvirtualbank.transaction.Transaction;
+import me.eokasta.appvirtualbank.transaction.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.Instant;

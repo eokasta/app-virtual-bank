@@ -1,9 +1,14 @@
 package me.eokasta.appvirtualbank.transaction;
 
 import jakarta.validation.Valid;
+import me.eokasta.appvirtualbank.transaction.dto.DepositTransactionDTO;
+import me.eokasta.appvirtualbank.transaction.dto.TransactionResponseDTO;
+import me.eokasta.appvirtualbank.transaction.exception.InsufficientBalanceException;
+import me.eokasta.appvirtualbank.transaction.exception.SelfTransferException;
+import me.eokasta.appvirtualbank.transaction.exception.UserNotAuthenticatedException;
+import me.eokasta.appvirtualbank.transaction.exception.UserNotFoundException;
 import me.eokasta.appvirtualbank.user.User;
 import me.eokasta.appvirtualbank.user.UserRepository;
-import me.eokasta.appvirtualbank.utils.MessageResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,24 +40,33 @@ public class TransactionController {
 
     @PutMapping
     public ResponseEntity deposit(@RequestBody @Valid DepositTransactionDTO data) {
-        final User userSender = userRepository.findByCpf(data.cpfSender());
+        final String senderCpf = data.cpfSender();
+        final User userSender = userRepository.findByCpf(senderCpf);
         final User userReceiver = userRepository.findByCpf(data.cpfReceiver());
 
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final User authenticatedUser = (User) authentication.getPrincipal();
-        if (!authenticatedUser.getCpf().equals(data.cpfSender()))
-            return ResponseEntity.status(401).body(new MessageResponseDTO("Usuário autenticado não é o remetente."));
+
+        final String authenticatedUserCpf = authenticatedUser.getCpf();
+        if (!authenticatedUserCpf.equals(senderCpf))
+            throw new UserNotAuthenticatedException(
+                    "Usuário autenticado não é o remetente.",
+                    authenticatedUserCpf,
+                    senderCpf);
 
         if (userSender == null)
-            return ResponseEntity.status(404).body(new MessageResponseDTO("CPF do remetente não encontrado."));
+            throw new UserNotFoundException("CPF do remetente não encontrado.", senderCpf);
 
         if (userReceiver == null)
-            return ResponseEntity.status(404).body(new MessageResponseDTO("CPF do destinatário não encontrado."));
+            throw new UserNotFoundException("CPF do destinatário não encontrado.", data.cpfReceiver());
+
+        if (userSender.getId().equals(userReceiver.getId()))
+            throw new SelfTransferException("Não é possível transferir para você mesmo.");
 
         final BigDecimal senderOldBalance = userSender.getBalance();
         final BigDecimal receiverOldBalance = userReceiver.getBalance();
         if (senderOldBalance.compareTo(data.value()) < 0)
-            return ResponseEntity.status(400).body(new MessageResponseDTO("Saldo insuficiente."));
+            throw new InsufficientBalanceException("Saldo insuficiente.", senderCpf, senderOldBalance, data.value());
 
         final BigDecimal senderNewBalance = senderOldBalance.subtract(data.value());
         final BigDecimal receiverNewBalance = receiverOldBalance.add(data.value());
