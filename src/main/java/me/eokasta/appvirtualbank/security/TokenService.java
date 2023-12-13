@@ -6,7 +6,6 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import me.eokasta.appvirtualbank.user.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -36,7 +35,7 @@ public class TokenService {
         }
     }
 
-    public Pair<String, Instant> validateToken(String token) {
+    public TokenDTO validateToken(String token) {
         try {
             final Algorithm algorithm = Algorithm.HMAC256(secret);
             final DecodedJWT decodedJWT = JWT.require(algorithm)
@@ -44,7 +43,11 @@ public class TokenService {
                     .build()
                     .verify(token);
 
-            return Pair.of(decodedJWT.getSubject(), decodedJWT.getExpiresAtAsInstant());
+            return new TokenDTO(
+                    token,
+                    decodedJWT.getSubject(),
+                    decodedJWT.getExpiresAtAsInstant()
+            );
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error on validate token.", exception);
         }

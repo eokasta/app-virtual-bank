@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import me.eokasta.appvirtualbank.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,13 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private TokenService tokenService;
-    private UserRepository repository;
+    private final TokenService tokenService;
+    private final UserRepository repository;
 
     @Autowired
     public SecurityFilter(TokenService tokenService, UserRepository repository) {
@@ -33,8 +31,8 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = recoverToken(request);
 
         if (token != null) {
-            final Pair<String, Instant> pair = tokenService.validateToken(token);
-            final String cpf = pair.getFirst();
+            final TokenDTO tokenDTO = tokenService.validateToken(token);
+            final String cpf = tokenDTO.cpf();
             final UserDetails user = repository.findByCpf(cpf);
 
             final var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

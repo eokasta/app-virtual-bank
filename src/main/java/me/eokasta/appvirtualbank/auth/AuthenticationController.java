@@ -19,9 +19,9 @@ import java.time.Instant;
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-    private AuthenticationManager authenticationManager;
-    private UserRepository repository;
-    private TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository repository;
+    private final TokenService tokenService;
 
     @Autowired
     public AuthenticationController(
@@ -40,7 +40,7 @@ public class AuthenticationController {
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((User) auth.getPrincipal());
-        final Instant expiresAt = tokenService.validateToken(token).getSecond();
+        final Instant expiresAt = tokenService.validateToken(token).expirationDate();
 
         return ResponseEntity.ok(new LoginResponseDTO(token, expiresAt));
     }
