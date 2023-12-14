@@ -3,7 +3,6 @@ package me.eokasta.appvirtualbank.auth;
 import jakarta.validation.Valid;
 import me.eokasta.appvirtualbank.security.TokenService;
 import me.eokasta.appvirtualbank.user.User;
-import me.eokasta.appvirtualbank.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,17 +19,14 @@ import java.time.Instant;
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository repository;
     private final TokenService tokenService;
 
     @Autowired
     public AuthenticationController(
             AuthenticationManager authenticationManager,
-            UserRepository repository,
             TokenService tokenService
     ) {
         this.authenticationManager = authenticationManager;
-        this.repository = repository;
         this.tokenService = tokenService;
     }
 
