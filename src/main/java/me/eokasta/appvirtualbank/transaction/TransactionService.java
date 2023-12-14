@@ -4,7 +4,10 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import me.eokasta.appvirtualbank.transaction.dto.DepositTransactionDTO;
 import me.eokasta.appvirtualbank.transaction.dto.TransactionResponseDTO;
-import me.eokasta.appvirtualbank.transaction.exception.*;
+import me.eokasta.appvirtualbank.transaction.exception.InsufficientBalanceException;
+import me.eokasta.appvirtualbank.transaction.exception.SelfTransferException;
+import me.eokasta.appvirtualbank.transaction.exception.UserNotAuthenticatedException;
+import me.eokasta.appvirtualbank.transaction.exception.UserNotFoundException;
 import me.eokasta.appvirtualbank.user.User;
 import me.eokasta.appvirtualbank.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +35,7 @@ public class TransactionService {
         this.userRepository = userRepository;
     }
 
-    @Transactional(rollbackFor = TransactionErrorException.class)
+    @Transactional
     public Pair<TransactionResponseDTO, TransactionResponseDTO> deposit(DepositTransactionDTO data) {
         final String senderCpf = data.cpfSender();
         final User userSender = userRepository.findByCpf(senderCpf);
